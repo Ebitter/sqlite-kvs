@@ -1,3 +1,6 @@
+#ifndef __SQLITE_KVS_H__
+#define __SQLITE_KVS_H__
+
 #include <sqlite3.h>
 
 #include <string>
@@ -122,3 +125,5 @@ class Sqlite_KVS{
         sqlite3_stmt *_get_sql;
 
 };
+
+#endif
