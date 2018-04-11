@@ -8,7 +8,7 @@ int main(){
 
     kvs.upsert("hatguy", 4);
 
-    std::cout << kvs.get("Marc") << std::endl;
+    //std::cout << kvs.get("Marc") << std::endl;
     std::cout << kvs.get("hatguy") << std::endl;
 
     return 0;
