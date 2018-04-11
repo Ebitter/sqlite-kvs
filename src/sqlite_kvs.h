@@ -3,6 +3,32 @@
 #include <string>
 #include <cassert>
 
+template<typename T>
+struct mapping_traits {};
+
+template<>
+struct mapping_traits<int64_t>{
+    static int bind(sqlite3_stmt* stmt, int idx, int64_t val) {
+        return sqlite3_bind_int64(stmt, idx, val);
+    }
+
+    static int64_t get_column(sqlite3_stmt* stmt, int idx) {
+        return sqlite3_column_int64(stmt, idx);
+    };
+};
+
+template<>
+struct mapping_traits<std::string>{
+	static int bind(sqlite3_stmt* stmt, int idx, const std::string & val) {
+		return sqlite3_bind_text(stmt, idx, val.c_str(), val.length() + 1, SQLITE_TRANSIENT);
+	}
+
+	static std::string get_column(sqlite3_stmt* stmt, int idx) {
+		return std::string{(const char *) sqlite3_column_text(stmt, idx)}; // nulls???
+	}
+};
+
+template<typename K, typename V>
 class Sqlite_KVS{
 
     public:
@@ -54,14 +80,14 @@ class Sqlite_KVS{
             return;
 		};
 
-        void upsert(const std::string &key, const int64_t &value){
+        void upsert(const K &key, const V &value){
             const int r_reset= sqlite3_reset(_upsert_sql);
             assert(r_reset == SQLITE_OK);
 
-            const int r_key_bind = sqlite3_bind_text(_upsert_sql, 1, key.c_str(), key.size(), SQLITE_STATIC);
+            const int r_key_bind = mapping_traits<K>::bind(_upsert_sql, 1, key);
             assert(r_key_bind == SQLITE_OK);
 
-            const int r_value_bind = sqlite3_bind_int64(_upsert_sql, 2, value);
+            const int r_value_bind = mapping_traits<V>::bind(_upsert_sql, 2, value);
             assert(r_value_bind == SQLITE_OK);
 
             const int r_exec = sqlite3_step(_upsert_sql);
@@ -70,11 +96,11 @@ class Sqlite_KVS{
             return;
         };
 
-        int64_t get(const std::string &key){
+        V get(const K &key){
             const int r_reset = sqlite3_reset(_get_sql);
             assert(r_reset == SQLITE_OK);
 
-            const int r_key_bind = sqlite3_bind_text(_get_sql, 1, key.c_str(), key.size(), SQLITE_STATIC);
+            const int r_key_bind = mapping_traits<K>::bind(_get_sql, 1, key);
             assert(r_key_bind == SQLITE_OK);
 
             const int r_exec = sqlite3_step(_get_sql);
@@ -82,7 +108,7 @@ class Sqlite_KVS{
                 assert(false);
             }
             else{
-                const int64_t value = sqlite3_column_int64(_get_sql, 0);
+                const V value = mapping_traits<V>::get_column(_get_sql, 0);
                 return value;
             }
 

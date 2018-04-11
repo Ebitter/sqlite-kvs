@@ -4,7 +4,7 @@
 
 int main(){
 
-    auto kvs = Sqlite_KVS("test.db", "kvs");
+    auto kvs = Sqlite_KVS<std::string, int64_t>("test.db", "kvs");
 
     kvs.upsert("hatguy", 4);
 
