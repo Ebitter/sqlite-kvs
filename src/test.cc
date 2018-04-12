@@ -10,6 +10,11 @@ int main(){
 
     //std::cout << kvs.get("Marc") << std::endl;
     std::cout << kvs.get("hatguy") << std::endl;
+    try{
+        std::cout << kvs.get("awodfj") << std::endl;
+    }
+    catch(E_NOT_FOUND e){
+    }
 
     return 0;
 }

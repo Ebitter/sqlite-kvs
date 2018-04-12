@@ -31,6 +31,8 @@ struct mapping_traits<std::string>{
 	}
 };
 
+class E_NOT_FOUND {};
+
 template<typename K, typename V>
 class Sqlite_KVS{
 
@@ -108,7 +110,7 @@ class Sqlite_KVS{
 
             const int r_exec = sqlite3_step(_get_sql);
             if(r_exec == SQLITE_DONE){
-                assert(false);
+                throw E_NOT_FOUND();
             }
             else{
                 const V value = mapping_traits<V>::get_column(_get_sql, 0);
