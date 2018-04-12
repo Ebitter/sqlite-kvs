@@ -11,22 +11,22 @@ struct mapping_traits {};
 
 template<>
 struct mapping_traits<int64_t>{
-    static int bind(sqlite3_stmt* stmt, int idx, int64_t val) {
+    static int bind(sqlite3_stmt *stmt, const int &idx, const int64_t &val) {
         return sqlite3_bind_int64(stmt, idx, val);
     }
 
-    static int64_t get_column(sqlite3_stmt* stmt, int idx) {
+    static int64_t get_column(sqlite3_stmt *stmt, const int &idx) {
         return sqlite3_column_int64(stmt, idx);
     };
 };
 
 template<>
 struct mapping_traits<std::string>{
-	static int bind(sqlite3_stmt* stmt, int idx, const std::string & val) {
+	static int bind(sqlite3_stmt *stmt, const int &idx, const std::string &val) {
 		return sqlite3_bind_text(stmt, idx, val.c_str(), val.length() + 1, SQLITE_TRANSIENT);
 	}
 
-	static std::string get_column(sqlite3_stmt* stmt, int idx) {
+	static std::string get_column(sqlite3_stmt *stmt, const int &idx) {
 		return std::string{(const char *) sqlite3_column_text(stmt, idx)}; // nulls???
 	}
 };
